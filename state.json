@@ -1,0 +1,30 @@
+{
+  "quizzes": [
+    {
+      "question": "Python에서 함수를 정의할 때 사용하는 키워드는 무엇인가요?",
+      "choices": ["func", "define", "def", "function"],
+      "answer": 3
+    },
+    {
+      "question": "함수 안에서 값을 호출한 곳으로 돌려줄 때 사용하는 키워드는 무엇인가요?",
+      "choices": ["print", "break", "return", "yield"],
+      "answer": 3
+    },
+    {
+      "question": "다음 중 Python 함수 호출 예시로 올바른 것은 무엇인가요?",
+      "choices": ["my_func[]", "my_func()", "call my_func()", "function my_func()"],
+      "answer": 2
+    },
+    {
+      "question": "함수 정의에서 괄호 안에 적는 값들의 이름은 무엇인가요?",
+      "choices": ["매개변수", "반환값", "반복문", "조건문"],
+      "answer": 1
+    },
+    {
+      "question": "다음 중 함수의 장점으로 가장 알맞은 것은 무엇인가요?",
+      "choices": ["코드를 반복해서 새로 작성해야 한다", "코드 재사용이 쉬워진다", "오류가 절대 발생하지 않는다", "변수를 사용할 수 없게 된다"],
+      "answer": 2
+    }
+  ],
+  "best_score": 0
+}
