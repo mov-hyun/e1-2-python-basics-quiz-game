@@ -3,6 +3,8 @@ from quiz_game import QuizGame
 
 def main():
     game = QuizGame()
+    game.load_state()
+    game.run()
     return game
 
 
