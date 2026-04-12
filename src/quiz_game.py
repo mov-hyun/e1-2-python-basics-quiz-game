@@ -130,7 +130,7 @@ class QuizGame:
         elif choice == 2:
             self.add_quiz()
         elif choice == 3:
-            print("퀴즈 목록 기능은 다음 단계에서 구현합니다.")
+            self.show_quiz_list()
         elif choice == 4:
             print("점수 확인 기능은 다음 단계에서 구현합니다.")
         elif choice == 5:
@@ -210,6 +210,40 @@ class QuizGame:
 
         print()
         print("✅ 퀴즈가 추가되었습니다!")
+
+    def show_quiz_list(self):
+        if not self.quizzes:
+            print("📭 등록된 퀴즈가 없습니다.")
+            return
+
+        self._print_quiz_list(show_answers=False)
+        print("1. 정답도 함께 보기")
+        print("2. 나가기")
+
+        choice = self._read_int(
+            "선택: ",
+            1,
+            2,
+            "⚠️ 잘못된 입력입니다. 1-2 사이의 숫자를 입력하세요.",
+            return_on_interrupt=2,
+        )
+
+        if choice == 1:
+            print()
+            self._print_quiz_list(show_answers=True)
+
+    def _print_quiz_list(self, show_answers):
+        print(f"📋 등록된 퀴즈 목록 (총 {len(self.quizzes)}개)")
+        print("-" * 40)
+
+        for index, quiz in enumerate(self.quizzes, start=1):
+            print(f"[{index}] {quiz.question}")
+            if show_answers:
+                answer_text = quiz.choices[quiz.answer - 1]
+                print(f"정답: {quiz.answer}번 - {answer_text}")
+                print()
+
+        print("-" * 40)
 
     def run(self):
         should_continue = True
