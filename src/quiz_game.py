@@ -1,5 +1,6 @@
 import json
 import random
+from datetime import datetime
 from pathlib import Path
 
 from src.quiz import Quiz
@@ -50,12 +51,14 @@ class QuizGame:
         self.quizzes = []
         self.best_score = 0
         self.rankings = []
+        self.history = []
 
     def load_state(self):
         if not self.state_file.exists():
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
             self.rankings = []
+            self.history = []
             return
 
         try:
@@ -66,6 +69,7 @@ class QuizGame:
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
             self.rankings = []
+            self.history = []
             return
 
         if not isinstance(data, dict):
@@ -73,6 +77,7 @@ class QuizGame:
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
             self.rankings = []
+            self.history = []
             return
 
         self.quizzes = self._load_quizzes(data.get("quizzes", []))
@@ -81,6 +86,7 @@ class QuizGame:
             self.quizzes = self._build_default_quizzes()
 
         self.rankings = self._load_rankings(data.get("rankings", []))
+        self.history = self._load_history(data.get("history", []))
         if self.rankings:
             self.best_score = self.rankings[0]["score"]
         else:
@@ -91,6 +97,7 @@ class QuizGame:
             "quizzes": [quiz.to_dict() for quiz in self.quizzes],
             "best_score": self.best_score,
             "rankings": self.rankings,
+            "history": self.history,
         }
         try:
             with self.state_file.open("w", encoding="utf-8") as file:
@@ -253,6 +260,12 @@ class QuizGame:
             print("닉네임 입력이 중단되어 '익명'으로 저장합니다.")
 
         ranking_added, is_new_best = self._update_rankings(nickname, total_score)
+        self._append_history(
+            nickname=nickname,
+            total_questions=total_questions,
+            correct_count=correct_count,
+            score=total_score,
+        )
         self.save_state()
 
         print("=" * 40)
@@ -264,8 +277,6 @@ class QuizGame:
             print("🎉 새로운 최고 점수입니다!")
         elif ranking_added:
             print("랭킹이 갱신되었습니다.")
-        else:
-            print("아쉽지만 이번 기록은 TOP 5에 들지 못했습니다.")
         print("=" * 40)
 
     def add_quiz(self):
@@ -339,15 +350,28 @@ class QuizGame:
         print("-" * 40)
 
     def show_score(self):
-        if not self.rankings:
-            print("📊 아직 랭킹 기록이 없습니다.")
+        if not self.rankings and not self.history:
+            print("📊 아직 점수 기록이 없습니다.")
             return
 
-        print("🏆 퀴즈 전체 랭킹")
-        print("-" * 40)
-        for index, ranking in enumerate(self.rankings, start=1):
-            print(f"{index}위. {ranking['nickname']} - {ranking['score']:.1f}점")
-        print("-" * 40)
+        if self.rankings:
+            print(f"🏆 현재 최고 점수: {self.best_score:.1f}점")
+            print("🏆 퀴즈 전체 랭킹")
+            print("-" * 40)
+            for index, ranking in enumerate(self.rankings, start=1):
+                print(f"{index}위. {ranking['nickname']} - {ranking['score']:.1f}점")
+            print("-" * 40)
+
+        if self.history:
+            print("🕘 플레이 히스토리")
+            print("-" * 40)
+            for index, record in enumerate(reversed(self.history), start=1):
+                print(
+                    f"{index}. {record['played_at']} | {record['nickname']} | "
+                    f"{record['total_questions']}문제 중 {record['correct_count']}문제 정답 | "
+                    f"{record['score']:.1f}점"
+                )
+            print("-" * 40)
 
     def delete_quiz(self):
         if not self.quizzes:
@@ -458,6 +482,47 @@ class QuizGame:
         rankings.sort(key=lambda item: item["score"], reverse=True)
         return rankings
 
+    def _load_history(self, history_data):
+        history = []
+
+        if not isinstance(history_data, list):
+            return history
+
+        for item in history_data:
+            if not isinstance(item, dict):
+                continue
+
+            nickname = item.get("nickname")
+            played_at = item.get("played_at")
+            total_questions = item.get("total_questions")
+            correct_count = item.get("correct_count")
+            score = item.get("score")
+
+            if not isinstance(nickname, str) or not nickname.strip():
+                continue
+            if not isinstance(played_at, str) or not played_at.strip():
+                continue
+            if not isinstance(total_questions, int) or total_questions < 0:
+                continue
+            if not isinstance(correct_count, int) or correct_count < 0:
+                continue
+            if correct_count > total_questions:
+                continue
+            if not isinstance(score, (int, float)) or score < 0:
+                continue
+
+            history.append(
+                {
+                    "nickname": nickname.strip(),
+                    "played_at": played_at.strip(),
+                    "total_questions": total_questions,
+                    "correct_count": correct_count,
+                    "score": float(score),
+                }
+            )
+
+        return history
+
     def _update_rankings(self, nickname, score):
         new_entry = {
             "nickname": nickname,
@@ -476,3 +541,14 @@ class QuizGame:
 
         is_new_best = ranking_added and score > previous_top_score
         return ranking_added, is_new_best
+
+    def _append_history(self, nickname, total_questions, correct_count, score):
+        self.history.append(
+            {
+                "nickname": nickname,
+                "played_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "total_questions": total_questions,
+                "correct_count": correct_count,
+                "score": score,
+            }
+        )

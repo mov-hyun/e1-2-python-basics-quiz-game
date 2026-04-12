@@ -71,12 +71,47 @@
       "score": 3.0
     },
     {
+      "nickname": "2",
+      "score": 3.0
+    },
+    {
       "nickname": "\u001b",
       "score": 2.5
     },
     {
       "nickname": "1234",
       "score": 2.0
+    },
+    {
+      "nickname": "2123",
+      "score": 2.0
+    },
+    {
+      "nickname": "13414",
+      "score": 0.0
+    }
+  ],
+  "history": [
+    {
+      "nickname": "2",
+      "played_at": "2026-04-12 14:57:23",
+      "total_questions": 5,
+      "correct_count": 3,
+      "score": 3.0
+    },
+    {
+      "nickname": "2123",
+      "played_at": "2026-04-12 14:57:28",
+      "total_questions": 5,
+      "correct_count": 2,
+      "score": 2.0
+    },
+    {
+      "nickname": "13414",
+      "played_at": "2026-04-12 14:58:44",
+      "total_questions": 5,
+      "correct_count": 0,
+      "score": 0.0
     }
   ]
 }
