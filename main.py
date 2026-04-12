@@ -1,4 +1,4 @@
-from quiz_game import QuizGame
+from src.quiz_game import QuizGame
 
 
 def main():

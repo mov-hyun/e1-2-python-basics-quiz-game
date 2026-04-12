@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from quiz import Quiz
+from src.quiz import Quiz
 
 
 DEFAULT_QUIZ_DATA = [
@@ -72,7 +72,7 @@ class QuizGame:
 
     def show_menu(self):
         print("=" * 40)
-        print("        나만의 퀴즈 게임")
+        print("        🎯 나만의 퀴즈 게임 🎯")
         print("=" * 40)
         print("1. 퀴즈 풀기")
         print("2. 퀴즈 추가")
@@ -81,30 +81,48 @@ class QuizGame:
         print("5. 종료")
         print("=" * 40)
 
-    def get_menu_choice(self):
+    def _read_text(self, prompt, empty_message, return_on_interrupt=None):
         while True:
             try:
-                raw_value = input("선택: ").strip()
+                raw_value = input(prompt)
             except (EOFError, KeyboardInterrupt):
-                print("\n프로그램을 안전하게 종료합니다.")
+                print("\n입력이 중단되었습니다. 프로그램을 안전하게 종료합니다.")
                 self.save_state()
-                return 5
+                return return_on_interrupt
 
+            raw_value = raw_value.strip()
             if not raw_value:
-                print("잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.")
+                print(empty_message)
                 continue
+
+            return raw_value
+
+    def _read_int(self, prompt, min_value, max_value, error_message, return_on_interrupt=None):
+        while True:
+            raw_value = self._read_text(prompt, error_message, return_on_interrupt)
+            if raw_value == return_on_interrupt:
+                return return_on_interrupt
 
             try:
-                choice = int(raw_value)
+                value = int(raw_value)
             except ValueError:
-                print("잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.")
+                print(error_message)
                 continue
 
-            if choice not in range(1, 6):
-                print("잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.")
+            if value < min_value or value > max_value:
+                print(error_message)
                 continue
 
-            return choice
+            return value
+
+    def get_menu_choice(self):
+        return self._read_int(
+            "선택: ",
+            1,
+            5,
+            "⚠️ 잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.",
+            return_on_interrupt=5,
+        )
 
     def handle_menu_choice(self, choice):
         if choice == 1:

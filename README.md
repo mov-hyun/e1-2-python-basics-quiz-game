@@ -27,7 +27,9 @@ e1-2-python-basics-quiz-game/
 ├──    
 ├──    
 └── src/      
-     └──   
+     ├── main.py
+     ├── quiz_game.py
+     └── quiz.py
 ```
 
 ### 수행항목 체크리스트
