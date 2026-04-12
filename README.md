@@ -56,7 +56,9 @@ e1-2-python-basics-quiz-game/
 | `git commit` | 변경 이력을 저장 | `git commit -m "Feat: 메인 메뉴 기능 구현"` |
 | `git push` | 로컬 커밋을 원격 저장소에 업로드 | `git push origin main` |
 | `git pull` | 원격 저장소의 최신 변경사항을 가져와 반영 | `git pull origin main` |
-| `git checkout` | 브랜치 이동 또는 새 브랜치 생성 | `git checkout -b play-quiz` |
+| `git checkout -b` | 새 브랜치 생성 | `git checkout -b play-quiz` |
+| `git checkout` | 브랜치 이동 | `git checkout play-quiz` |
+| `git branch` | 현재 브랜치 및 브랜치 목록 확인 | `git branch` |
 | `git clone` | 원격 저장소를 로컬로 복제 | `git clone <저장소_URL>` |
 
 이번 과제에서는 위 명령어들을 사용해 초기 설정, 기능별 커밋, 브랜치 작업, 병합, 원격 저장소 업로드, clone/pull 실습을 진행했습니다.
