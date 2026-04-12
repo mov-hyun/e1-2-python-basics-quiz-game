@@ -9,21 +9,25 @@ DEFAULT_QUIZ_DATA = [
         "question": "Python에서 함수를 정의할 때 사용하는 키워드는 무엇인가요?",
         "choices": ["func", "define", "def", "function"],
         "answer": 3,
+        "hint": "함수를 만들 때 가장 자주 보는 세 글자 키워드입니다.",
     },
     {
         "question": "함수 안에서 값을 호출한 곳으로 돌려줄 때 사용하는 키워드는 무엇인가요?",
         "choices": ["print", "break", "return", "yield"],
         "answer": 3,
+        "hint": "함수의 실행 결과를 바깥으로 보내는 역할을 합니다.",
     },
     {
         "question": "다음 중 Python 함수 호출 예시로 올바른 것은 무엇인가요?",
         "choices": ["my_func[]", "my_func()", "call my_func()", "function my_func()"],
         "answer": 2,
+        "hint": "함수를 사용할 때는 이름 뒤에 소괄호를 붙입니다.",
     },
     {
         "question": "함수 정의에서 괄호 안에 적는 값들의 이름은 무엇인가요?",
         "choices": ["매개변수", "반환값", "반복문", "조건문"],
         "answer": 1,
+        "hint": "함수에 전달되는 입력값의 이름을 가리키는 말입니다.",
     },
     {
         "question": "다음 중 함수의 장점으로 가장 알맞은 것은 무엇인가요?",
@@ -34,6 +38,7 @@ DEFAULT_QUIZ_DATA = [
             "변수를 사용할 수 없게 된다",
         ],
         "answer": 2,
+        "hint": "같은 작업을 여러 번 써야 할 때 도움이 되는 특징입니다.",
     },
 ]
 
@@ -172,8 +177,10 @@ class QuizGame:
 
         total_questions = len(self.quizzes)
         correct_count = 0
+        remaining_hints = 3
 
         print(f"📝 퀴즈를 시작합니다! (총 {total_questions}문제)")
+        print(f"💡 이번 게임에서 사용할 수 있는 힌트는 총 {remaining_hints}회입니다.")
         print()
 
         for index, quiz in enumerate(self.quizzes, start=1):
@@ -181,17 +188,44 @@ class QuizGame:
             print(f"[문제 {index}]")
             quiz.display()
             print()
+            hint_used_for_question = False
 
-            user_answer = self._read_int(
-                "정답 입력 (1-4): ",
-                1,
-                4,
-                "⚠️ 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.",
-            )
+            while True:
+                print(f"남은 힌트: {remaining_hints}회")
+                user_answer = self._read_int(
+                    "정답 입력 (0: 힌트 보기, 1-4: 답안): ",
+                    0,
+                    4,
+                    "⚠️ 잘못된 입력입니다. 0-4 사이의 숫자를 입력하세요.",
+                )
 
-            if user_answer is None:
-                print("퀴즈 진행을 중단하고 메뉴로 돌아갑니다.")
-                return
+                if user_answer is None:
+                    print("퀴즈 진행을 중단하고 메뉴로 돌아갑니다.")
+                    return
+
+                if user_answer != 0:
+                    break
+
+                if hint_used_for_question:
+                    print("⚠️ 이 문제의 힌트는 이미 확인했습니다.")
+                    print()
+                    continue
+
+                if remaining_hints <= 0:
+                    print("⚠️ 사용할 수 있는 힌트가 없습니다.")
+                    print()
+                    continue
+
+                if not quiz.hint:
+                    print("⚠️ 이 문제에는 힌트가 없습니다.")
+                    print()
+                    continue
+
+                remaining_hints -= 1
+                hint_used_for_question = True
+                print(f"💡 힌트: {quiz.hint}")
+                print()
+
 
             if quiz.is_correct(user_answer):
                 correct_count += 1
@@ -246,7 +280,12 @@ class QuizGame:
             "⚠️ 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.",
         )
 
-        new_quiz = Quiz(question, choices, answer)
+        hint = self._read_text(
+            "힌트를 입력하세요: ",
+            "⚠️ 힌트는 비워둘 수 없습니다. 다시 입력하세요.",
+        )
+
+        new_quiz = Quiz(question, choices, answer, hint)
         self.quizzes.append(new_quiz)
         self.save_state()
 
