@@ -51,21 +51,25 @@
       "answer": 2
     },
     {
-      "question": "다음 코드의 출력은? print(type([]) == list)",
+      "question": "1+1=?",
       "choices": [
-        "True",
-        "False",
-        "list",
-        "null"
+        "1",
+        "2",
+        "3",
+        "4"
       ],
-      "answer": 1
+      "answer": 2
     }
   ],
-  "best_score": 6,
+  "best_score": 3,
   "rankings": [
     {
-      "nickname": "east",
-      "score": 6
+      "nickname": "2",
+      "score": 3
+    },
+    {
+      "nickname": "1234",
+      "score": 2
     }
   ]
 }

@@ -49,24 +49,36 @@ class QuizGame:
         if not self.state_file.exists():
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
+            self.rankings = []
             return
 
         try:
             with self.state_file.open("r", encoding="utf-8") as file:
                 data = json.load(file)
         except (OSError, json.JSONDecodeError):
+            print("⚠️ state.json 파일을 읽을 수 없어 기본 데이터로 시작합니다.")
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
             self.rankings = []
             return
 
-        quiz_data = data.get("quizzes", [])
-        self.quizzes = [Quiz.from_dict(item) for item in quiz_data]
+        if not isinstance(data, dict):
+            print("⚠️ state.json 구조가 올바르지 않아 기본 데이터로 시작합니다.")
+            self.quizzes = self._build_default_quizzes()
+            self.best_score = 0
+            self.rankings = []
+            return
+
+        self.quizzes = self._load_quizzes(data.get("quizzes", []))
+        if not self.quizzes:
+            print("⚠️ 유효한 퀴즈 데이터가 없어 기본 퀴즈로 복구합니다.")
+            self.quizzes = self._build_default_quizzes()
+
         self.rankings = self._load_rankings(data.get("rankings", []))
         if self.rankings:
             self.best_score = self.rankings[0]["score"]
         else:
-            self.best_score = data.get("best_score", 0)
+            self.best_score = self._load_best_score(data.get("best_score", 0))
 
     def save_state(self):
         data = {
@@ -74,8 +86,11 @@ class QuizGame:
             "best_score": self.best_score,
             "rankings": self.rankings,
         }
-        with self.state_file.open("w", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False, indent=2)
+        try:
+            with self.state_file.open("w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=2)
+        except OSError:
+            print("⚠️ state.json 파일 저장에 실패했습니다.")
 
     def show_menu(self):
         print("=" * 40)
@@ -291,6 +306,25 @@ class QuizGame:
 
     def _build_default_quizzes(self):
         return [Quiz.from_dict(item) for item in DEFAULT_QUIZ_DATA]
+
+    def _load_quizzes(self, quiz_data):
+        quizzes = []
+
+        if not isinstance(quiz_data, list):
+            return quizzes
+
+        for item in quiz_data:
+            try:
+                quizzes.append(Quiz.from_dict(item))
+            except (KeyError, TypeError, ValueError):
+                continue
+
+        return quizzes
+
+    def _load_best_score(self, best_score_data):
+        if not isinstance(best_score_data, int) or best_score_data < 0:
+            return 0
+        return best_score_data
 
     def _load_rankings(self, ranking_data):
         rankings = []
