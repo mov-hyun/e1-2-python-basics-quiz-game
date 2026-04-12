@@ -84,3 +84,51 @@ e1-2-python-basics-quiz-game/
 ## 9. Python 기본 정리
 
 ## 10. 트러블 슈팅
+
+### 10.1 GitHub 인증 오류 (PAT 기반 재인증)
+
+| 구분 | 내용 |
+|------|------|
+| 문제 | git push 실행 시 "Password authentication is not supported" 오류가 발생하며 원격 저장소에 push되지 않음 |
+| 원인 | GitHub는 HTTPS Git 작업에서 계정 비밀번호 인증을 지원하지 않는다. 또한 macOS에서는 Git 자격증명이 osxkeychain에 저장되어 재사용될 수 있어, 기존에 저장된 잘못되었거나 만료된 인증 정보가 인증 실패를 유발했을 가능성이 있었다. |
+| 해결 | 1. git config --get credential.helper로 osxkeychain 사용 여부를 확인하였다. <br> 2. git credential-osxkeychain erase로 기존 인증 정보 삭제를 시도하였다. <br> 3. 삭제 명령은 오류로 완료되지 않았지만, 이후 git push 과정에서 유효한 인증 정보로 다시 인증이 이루어졌다. <br> 4. 그 결과 정상적으로 원격 저장소에 push할 수 있었다. |
+| 결과 | 비밀번호 인증 오류를 해결하고 GitHub 원격 저장소에 정상적으로 push 성공 |
+
+#### 📌 실제 트러블 슈팅 로그
+
+```bash
+east1111@1234 e1-2-python-basics-quiz-game % git push
+# GitHub에 push를 시도했지만, 비밀번호 인증이 지원되지 않아 실패함
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/mov-hyun/e1-2-python-basics-quiz-game.git/'
+
+east1111@1234 e1-2-python-basics-quiz-game % git config --get credential.helper
+# 현재 Git 자격 증명 저장 방식 확인
+osxkeychain
+
+east1111@1234 e1-2-python-basics-quiz-game % git credential-osxkeychain erase
+# macOS Keychain에 저장된 기존 GitHub 인증 정보 삭제를 시도함
+host=github.com
+protocol=https
+
+fatal: failed to erase: -1
+# Keychain 자격증명 삭제 시도는 실패했음
+# 다만 이후 git push에서 유효한 인증 정보가 다시 적용되어 정상적으로 push가 완료됨
+# 따라서 직접 해결 요인은 삭제 성공 자체보다 재인증 과정에 있었음
+
+east1111@1234 e1-2-python-basics-quiz-game % git push
+# GitHub 비밀번호 대신 PAT를 입력하여 다시 push 실행
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Delta compression using up to 6 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 1.11 KiB | 1.11 MiB/s, done.
+Total 6 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/mov-hyun/e1-2-python-basics-quiz-game.git
+   *****..*****  main -> main
+
+east1111@1234 e1-2-python-basics-quiz-game % git push
+# 추가 변경 사항이 없어 최신 상태임
+Everything up-to-date
+```
