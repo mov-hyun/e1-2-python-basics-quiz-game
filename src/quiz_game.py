@@ -126,7 +126,7 @@ class QuizGame:
 
     def handle_menu_choice(self, choice):
         if choice == 1:
-            print("퀴즈 풀기 기능은 다음 단계에서 구현합니다.")
+            self.play_quiz()
         elif choice == 2:
             print("퀴즈 추가 기능은 다음 단계에서 구현합니다.")
         elif choice == 3:
@@ -139,6 +139,46 @@ class QuizGame:
             return False
 
         return True
+
+    def play_quiz(self):
+        if not self.quizzes:
+            print("📭 등록된 퀴즈가 없습니다.")
+            return
+
+        total_questions = len(self.quizzes)
+        correct_count = 0
+
+        print(f"📝 퀴즈를 시작합니다! (총 {total_questions}문제)")
+        print()
+
+        for index, quiz in enumerate(self.quizzes, start=1):
+            print("-" * 40)
+            print(f"[문제 {index}]")
+            quiz.display()
+            print()
+
+            user_answer = self._read_int(
+                "정답 입력 (1-4): ",
+                1,
+                4,
+                "⚠️ 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.",
+            )
+
+            if user_answer is None:
+                print("퀴즈 진행을 중단하고 메뉴로 돌아갑니다.")
+                return
+
+            if quiz.is_correct(user_answer):
+                correct_count += 1
+                print("✅ 정답입니다!")
+            else:
+                print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
+
+            print()
+
+        print("=" * 40)
+        print(f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답!")
+        print("=" * 40)
 
     def run(self):
         should_continue = True

@@ -24,10 +24,9 @@
 e1-2-python-basics-quiz-game/  
 ├── .gitignore     
 ├── README.md      
-├──    
+├── main.py
 ├──    
 └── src/      
-     ├── main.py
      ├── quiz_game.py
      └── quiz.py
 ```
