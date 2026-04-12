@@ -43,6 +43,7 @@ class QuizGame:
         self.state_file = Path(state_file)
         self.quizzes = []
         self.best_score = 0
+        self.rankings = []
 
     def load_state(self):
         if not self.state_file.exists():
@@ -56,16 +57,22 @@ class QuizGame:
         except (OSError, json.JSONDecodeError):
             self.quizzes = self._build_default_quizzes()
             self.best_score = 0
+            self.rankings = []
             return
 
         quiz_data = data.get("quizzes", [])
         self.quizzes = [Quiz.from_dict(item) for item in quiz_data]
-        self.best_score = data.get("best_score", 0)
+        self.rankings = self._load_rankings(data.get("rankings", []))
+        if self.rankings:
+            self.best_score = self.rankings[0]["score"]
+        else:
+            self.best_score = data.get("best_score", 0)
 
     def save_state(self):
         data = {
             "quizzes": [quiz.to_dict() for quiz in self.quizzes],
             "best_score": self.best_score,
+            "rankings": self.rankings,
         }
         with self.state_file.open("w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=2)
@@ -132,7 +139,7 @@ class QuizGame:
         elif choice == 3:
             self.show_quiz_list()
         elif choice == 4:
-            print("점수 확인 기능은 다음 단계에서 구현합니다.")
+            self.show_score()
         elif choice == 5:
             self.save_state()
             print("프로그램을 종료합니다.")
@@ -176,8 +183,25 @@ class QuizGame:
 
             print()
 
+        nickname = self._read_text(
+            "닉네임을 입력하세요: ",
+            "⚠️ 닉네임은 비워둘 수 없습니다. 다시 입력하세요.",
+            return_on_interrupt="익명",
+        )
+        if nickname == "익명":
+            print("닉네임 입력이 중단되어 '익명'으로 저장합니다.")
+
+        ranking_added, is_new_best = self._update_rankings(nickname, correct_count)
+        self.save_state()
+
         print("=" * 40)
         print(f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답!")
+        if is_new_best:
+            print("🎉 새로운 최고 점수입니다!")
+        elif ranking_added:
+            print("랭킹이 갱신되었습니다.")
+        else:
+            print("아쉽지만 이번 기록은 TOP 5에 들지 못했습니다.")
         print("=" * 40)
 
     def add_quiz(self):
@@ -245,6 +269,17 @@ class QuizGame:
 
         print("-" * 40)
 
+    def show_score(self):
+        if not self.rankings:
+            print("📊 아직 랭킹 기록이 없습니다.")
+            return
+
+        print("🏆 퀴즈 랭킹 TOP 5")
+        print("-" * 40)
+        for index, ranking in enumerate(self.rankings, start=1):
+            print(f"{index}위. {ranking['nickname']} - {ranking['score']}문제 정답")
+        print("-" * 40)
+
     def run(self):
         should_continue = True
 
@@ -256,3 +291,51 @@ class QuizGame:
 
     def _build_default_quizzes(self):
         return [Quiz.from_dict(item) for item in DEFAULT_QUIZ_DATA]
+
+    def _load_rankings(self, ranking_data):
+        rankings = []
+
+        if not isinstance(ranking_data, list):
+            return rankings
+
+        for item in ranking_data:
+            if not isinstance(item, dict):
+                continue
+
+            nickname = item.get("nickname")
+            score = item.get("score")
+
+            if not isinstance(nickname, str) or not nickname.strip():
+                continue
+            if not isinstance(score, int) or score < 0:
+                continue
+
+            rankings.append(
+                {
+                    "nickname": nickname.strip(),
+                    "score": score,
+                }
+            )
+
+        rankings.sort(key=lambda item: item["score"], reverse=True)
+        return rankings[:5]
+
+    def _update_rankings(self, nickname, score):
+        new_entry = {
+            "nickname": nickname,
+            "score": score,
+        }
+        previous_top_score = self.best_score
+
+        self.rankings.append(new_entry)
+        self.rankings.sort(key=lambda item: item["score"], reverse=True)
+        self.rankings = self.rankings[:5]
+        ranking_added = any(item is new_entry for item in self.rankings)
+
+        if self.rankings:
+            self.best_score = self.rankings[0]["score"]
+        else:
+            self.best_score = 0
+
+        is_new_best = ranking_added and score > previous_top_score
+        return ranking_added, is_new_best
