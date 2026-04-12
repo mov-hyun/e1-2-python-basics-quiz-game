@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 
 from src.quiz import Quiz
@@ -175,15 +176,19 @@ class QuizGame:
             print("📭 등록된 퀴즈가 없습니다.")
             return
 
-        total_questions = len(self.quizzes)
+        quiz_order = self.quizzes[:]
+        random.shuffle(quiz_order)
+
+        total_questions = len(quiz_order)
         correct_count = 0
+        total_score = 0.0
         remaining_hints = 3
 
         print(f"📝 퀴즈를 시작합니다! (총 {total_questions}문제)")
         print(f"💡 이번 게임에서 사용할 수 있는 힌트는 총 {remaining_hints}회입니다.")
         print()
 
-        for index, quiz in enumerate(self.quizzes, start=1):
+        for index, quiz in enumerate(quiz_order, start=1):
             print("-" * 40)
             print(f"[문제 {index}]")
             quiz.display()
@@ -229,6 +234,10 @@ class QuizGame:
 
             if quiz.is_correct(user_answer):
                 correct_count += 1
+                if hint_used_for_question:
+                    total_score += 0.5
+                else:
+                    total_score += 1.0
                 print("✅ 정답입니다!")
             else:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
@@ -243,11 +252,14 @@ class QuizGame:
         if nickname == "익명":
             print("닉네임 입력이 중단되어 '익명'으로 저장합니다.")
 
-        ranking_added, is_new_best = self._update_rankings(nickname, correct_count)
+        ranking_added, is_new_best = self._update_rankings(nickname, total_score)
         self.save_state()
 
         print("=" * 40)
-        print(f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답!")
+        print(
+            f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답! "
+            f"(총점 {total_score:.1f}점)"
+        )
         if is_new_best:
             print("🎉 새로운 최고 점수입니다!")
         elif ranking_added:
@@ -331,10 +343,10 @@ class QuizGame:
             print("📊 아직 랭킹 기록이 없습니다.")
             return
 
-        print("🏆 퀴즈 랭킹 TOP 5")
+        print("🏆 퀴즈 전체 랭킹")
         print("-" * 40)
         for index, ranking in enumerate(self.rankings, start=1):
-            print(f"{index}위. {ranking['nickname']} - {ranking['score']}문제 정답")
+            print(f"{index}위. {ranking['nickname']} - {ranking['score']:.1f}점")
         print("-" * 40)
 
     def delete_quiz(self):
@@ -414,9 +426,9 @@ class QuizGame:
         return quizzes
 
     def _load_best_score(self, best_score_data):
-        if not isinstance(best_score_data, int) or best_score_data < 0:
+        if not isinstance(best_score_data, (int, float)) or best_score_data < 0:
             return 0
-        return best_score_data
+        return float(best_score_data)
 
     def _load_rankings(self, ranking_data):
         rankings = []
@@ -433,18 +445,18 @@ class QuizGame:
 
             if not isinstance(nickname, str) or not nickname.strip():
                 continue
-            if not isinstance(score, int) or score < 0:
+            if not isinstance(score, (int, float)) or score < 0:
                 continue
 
             rankings.append(
                 {
                     "nickname": nickname.strip(),
-                    "score": score,
+                    "score": float(score),
                 }
             )
 
         rankings.sort(key=lambda item: item["score"], reverse=True)
-        return rankings[:5]
+        return rankings
 
     def _update_rankings(self, nickname, score):
         new_entry = {
@@ -455,7 +467,6 @@ class QuizGame:
 
         self.rankings.append(new_entry)
         self.rankings.sort(key=lambda item: item["score"], reverse=True)
-        self.rankings = self.rankings[:5]
         ranking_added = any(item is new_entry for item in self.rankings)
 
         if self.rankings:

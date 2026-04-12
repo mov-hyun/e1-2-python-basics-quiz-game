@@ -56,19 +56,27 @@
       "hint": "같은 작업을 여러 번 써야 할 때 도움이 되는 특징입니다."
     }
   ],
-  "best_score": 5,
+  "best_score": 5.0,
   "rankings": [
     {
       "nickname": "1234",
-      "score": 5
+      "score": 5.0
     },
     {
       "nickname": "2",
-      "score": 3
+      "score": 3.0
+    },
+    {
+      "nickname": "1",
+      "score": 3.0
+    },
+    {
+      "nickname": "\u001b",
+      "score": 2.5
     },
     {
       "nickname": "1234",
-      "score": 2
+      "score": 2.0
     }
   ]
 }
