@@ -100,7 +100,8 @@ class QuizGame:
         print("2. 퀴즈 추가")
         print("3. 퀴즈 목록")
         print("4. 점수 확인")
-        print("5. 종료")
+        print("5. 퀴즈 삭제")
+        print("6. 종료")
         print("=" * 40)
 
     def _read_text(self, prompt, empty_message, return_on_interrupt=None):
@@ -141,9 +142,9 @@ class QuizGame:
         return self._read_int(
             "선택: ",
             1,
-            5,
-            "⚠️ 잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.",
-            return_on_interrupt=5,
+            6,
+            "⚠️ 잘못된 입력입니다. 1-6 사이의 숫자를 입력하세요.",
+            return_on_interrupt=6,
         )
 
     def handle_menu_choice(self, choice):
@@ -156,6 +157,8 @@ class QuizGame:
         elif choice == 4:
             self.show_score()
         elif choice == 5:
+            self.delete_quiz()
+        elif choice == 6:
             self.save_state()
             print("프로그램을 종료합니다.")
             return False
@@ -295,6 +298,50 @@ class QuizGame:
             print(f"{index}위. {ranking['nickname']} - {ranking['score']}문제 정답")
         print("-" * 40)
 
+    def delete_quiz(self):
+        if not self.quizzes:
+            print("📭 삭제할 퀴즈가 없습니다.")
+            return
+
+        print("🗑️ 삭제할 퀴즈를 선택하세요.")
+        print("-" * 40)
+        for index, quiz in enumerate(self.quizzes, start=1):
+            print(f"[{index}] {quiz.question}")
+        print("-" * 40)
+
+        quiz_number = self._read_int(
+            "삭제할 퀴즈 번호를 입력하세요: ",
+            1,
+            len(self.quizzes),
+            f"⚠️ 잘못된 입력입니다. 1-{len(self.quizzes)} 사이의 숫자를 입력하세요.",
+        )
+
+        selected_quiz = self.quizzes[quiz_number - 1]
+        if self._is_default_quiz(selected_quiz):
+            print("⚠️ 기본 퀴즈는 삭제할 수 없습니다.")
+            return
+
+        print()
+        print(f"선택한 퀴즈: {selected_quiz.question}")
+        print("1. 삭제")
+        print("2. 취소")
+
+        confirm = self._read_int(
+            "선택: ",
+            1,
+            2,
+            "⚠️ 잘못된 입력입니다. 1-2 사이의 숫자를 입력하세요.",
+            return_on_interrupt=2,
+        )
+
+        if confirm == 2:
+            print("퀴즈 삭제를 취소했습니다.")
+            return
+
+        deleted_quiz = self.quizzes.pop(quiz_number - 1)
+        self.save_state()
+        print(f"✅ '{deleted_quiz.question}' 퀴즈가 삭제되었습니다.")
+
     def run(self):
         should_continue = True
 
@@ -306,6 +353,12 @@ class QuizGame:
 
     def _build_default_quizzes(self):
         return [Quiz.from_dict(item) for item in DEFAULT_QUIZ_DATA]
+
+    def _is_default_quiz(self, quiz):
+        for default_quiz in DEFAULT_QUIZ_DATA:
+            if quiz.to_dict() == default_quiz:
+                return True
+        return False
 
     def _load_quizzes(self, quiz_data):
         quizzes = []
