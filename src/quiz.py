@@ -1,5 +1,5 @@
 class Quiz:
-    def __init__(self, question, choices, answer):
+    def __init__(self, question, choices, answer, hint=""):
         if len(choices) != 4:
             raise ValueError("choices must contain exactly 4 items.")
         if answer not in (1, 2, 3, 4):
@@ -8,6 +8,7 @@ class Quiz:
         self.question = question
         self.choices = choices
         self.answer = answer
+        self.hint = hint
 
     def display(self):
         print(self.question)
@@ -22,6 +23,7 @@ class Quiz:
             "question": self.question,
             "choices": self.choices,
             "answer": self.answer,
+            "hint": self.hint,
         }
 
     @classmethod
@@ -30,4 +32,5 @@ class Quiz:
             question=data["question"],
             choices=data["choices"],
             answer=data["answer"],
+            hint=data.get("hint", ""),
         )
