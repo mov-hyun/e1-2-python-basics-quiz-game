@@ -49,6 +49,16 @@
         "변수를 사용할 수 없게 된다"
       ],
       "answer": 2
+    },
+    {
+      "question": "다음 코드의 출력은? print(type([]) == list)",
+      "choices": [
+        "True",
+        "False",
+        "list",
+        "null"
+      ],
+      "answer": 1
     }
   ],
   "best_score": 0

@@ -128,7 +128,7 @@ class QuizGame:
         if choice == 1:
             self.play_quiz()
         elif choice == 2:
-            print("퀴즈 추가 기능은 다음 단계에서 구현합니다.")
+            self.add_quiz()
         elif choice == 3:
             print("퀴즈 목록 기능은 다음 단계에서 구현합니다.")
         elif choice == 4:
@@ -179,6 +179,37 @@ class QuizGame:
         print("=" * 40)
         print(f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답!")
         print("=" * 40)
+
+    def add_quiz(self):
+        print("📌 새로운 퀴즈를 추가합니다.")
+        print()
+
+        question = self._read_text(
+            "문제를 입력하세요: ",
+            "⚠️ 문제는 비워둘 수 없습니다. 다시 입력하세요.",
+        )
+
+        choices = []
+        for index in range(1, 5):
+            choice = self._read_text(
+                f"선택지 {index}: ",
+                f"⚠️ 선택지 {index}은(는) 비워둘 수 없습니다. 다시 입력하세요.",
+            )
+            choices.append(choice)
+
+        answer = self._read_int(
+            "정답 번호 (1-4): ",
+            1,
+            4,
+            "⚠️ 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.",
+        )
+
+        new_quiz = Quiz(question, choices, answer)
+        self.quizzes.append(new_quiz)
+        self.save_state()
+
+        print()
+        print("✅ 퀴즈가 추가되었습니다!")
 
     def run(self):
         should_continue = True
