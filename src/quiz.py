@@ -1,4 +1,5 @@
 class Quiz:
+    # Quiz는 퀴즈 한 문제에 필요한 데이터와 동작만 담당한다.
     def __init__(self, question, choices, answer, hint=""):
         if len(choices) != 4:
             raise ValueError("choices must contain exactly 4 items.")

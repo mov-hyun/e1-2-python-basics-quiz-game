@@ -53,6 +53,7 @@ class QuizGame:
         self.rankings = []
         self.history = []
 
+    # 저장/복구 로직은 별도 메서드로 분리해 state.json 관리 책임을 모은다.
     def load_state(self):
         if not self.state_file.exists():
             self.quizzes = self._build_default_quizzes()
@@ -117,6 +118,7 @@ class QuizGame:
         print("6. 종료")
         print("=" * 40)
 
+    # 메뉴 입력, 정답 입력, 퀴즈 추가 입력에서 같은 검증 로직을 재사용한다.
     def _read_text(self, prompt, empty_message, return_on_interrupt=None):
         while True:
             try:
@@ -178,6 +180,7 @@ class QuizGame:
 
         return True
 
+    # 퀴즈 진행, 힌트 사용, 점수 계산은 play_quiz에서 한 흐름으로 관리한다.
     def play_quiz(self):
         if not self.quizzes:
             print("📭 등록된 퀴즈가 없습니다.")
