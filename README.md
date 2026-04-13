@@ -21,15 +21,15 @@
 
 ### 프로젝트 구조
 
-```
-e1-2-python-basics-quiz-game/  
-├── .gitignore     
-├── README.md      
+```text
+e1-2-python-basics-quiz-game/
+├── .gitignore
+├── README.md
 ├── main.py
-├──    
-└── src/      
-     ├── quiz_game.py
-     └── quiz.py
+├── state.json
+└── src/
+    ├── quiz.py
+    └── quiz_game.py
 ```
 
 ### 수행항목 체크리스트
