@@ -173,7 +173,6 @@ Python 3.10 이상 환경에서 실행하는 것을 권장합니다.
 ```text
 e1-2-python-basics-quiz-game/
 ├── .gitignore
-├── ASSIGNMENT_GUIDE.md
 ├── README.md
 ├── main.py
 ├── state.json

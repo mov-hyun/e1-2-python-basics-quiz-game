@@ -183,8 +183,16 @@ class QuizGame:
             print("📭 등록된 퀴즈가 없습니다.")
             return
 
+        selected_question_count = self._read_int(
+            f"몇 문제를 풀까요? (1-{len(self.quizzes)}): ",
+            1,
+            len(self.quizzes),
+            f"⚠️ 잘못된 입력입니다. 1-{len(self.quizzes)} 사이의 숫자를 입력하세요.",
+        )
+
         quiz_order = self.quizzes[:]
         random.shuffle(quiz_order)
+        quiz_order = quiz_order[:selected_question_count]
 
         total_questions = len(quiz_order)
         correct_count = 0
@@ -354,24 +362,26 @@ class QuizGame:
             print("📊 아직 점수 기록이 없습니다.")
             return
 
-        if self.rankings:
-            print(f"🏆 현재 최고 점수: {self.best_score:.1f}점")
-            print("🏆 퀴즈 전체 랭킹")
-            print("-" * 40)
-            for index, ranking in enumerate(self.rankings, start=1):
-                print(f"{index}위. {ranking['nickname']} - {ranking['score']:.1f}점")
-            print("-" * 40)
+        print(f"🏆 현재 최고 점수: {self.best_score:.1f}점")
 
         if self.history:
-            print("🕘 플레이 히스토리")
+            sorted_history = sorted(
+                self.history,
+                key=lambda record: (record["score"], record["played_at"]),
+                reverse=True,
+            )
+
+            print("🏆 퀴즈 랭킹")
             print("-" * 40)
-            for index, record in enumerate(reversed(self.history), start=1):
+            for index, record in enumerate(sorted_history, start=1):
                 print(
-                    f"{index}. {record['played_at']} | {record['nickname']} | "
-                    f"{record['total_questions']}문제 중 {record['correct_count']}문제 정답 | "
-                    f"{record['score']:.1f}점"
+                    f"{index}. {record['nickname']} | {record['score']:.1f}점 | "
+                    f"{record['correct_count']}/{record['total_questions']} | "
+                    f"{record['played_at']}"
                 )
             print("-" * 40)
+        else:
+            print("📊 플레이 히스토리 기록은 아직 없습니다.")
 
     def delete_quiz(self):
         if not self.quizzes:
