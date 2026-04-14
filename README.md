@@ -70,6 +70,8 @@ e1-2-python-basics-quiz-game/
 
 이번 과제에서는 위 명령어들을 사용해 초기 설정, 기능별 커밋, 브랜치 작업, 병합, 원격 저장소 업로드, clone/pull 실습을 진행했습니다.
 
+### Git clone/pull 실습
+
 
 ## 3. Python 기본 정리
 
