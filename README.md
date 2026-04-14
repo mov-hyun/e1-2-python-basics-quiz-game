@@ -70,9 +70,59 @@ e1-2-python-basics-quiz-game/
 
 이번 과제에서는 위 명령어들을 사용해 초기 설정, 기능별 커밋, 브랜치 작업, 병합, 원격 저장소 업로드, clone/pull 실습을 진행했습니다.
 
-### Git clone/pull 실습
+### 2.1 Git clone / pull 실습
 
+과제 요구사항에 맞게 저장소를 별도 폴더로 복제한 뒤, 복제본에서 README를 수정하고 push한 다음 원래 작업 폴더에서 pull로 변경 사항을 가져오는 과정을 실습했습니다.
 
+```bash
+# 저장소를 새로운 로컬 디렉터리로 복제
+east1111@1234 e1-2-python-basics-quiz-game % cd ..
+east1111@1234 ~ % git clone https://github.com/mov-hyun/e1-2-python-basics-quiz-game.git e1-2-python-basics-quiz-game-copy
+Cloning into 'e1-2-python-basics-quiz-game-copy'...
+remote: Enumerating objects: 129, done.
+remote: Counting objects: 100% (129/129), done.
+remote: Compressing objects: 100% (87/87), done.
+remote: Total 129 (delta 63), reused 104 (delta 41), pack-reused 0 (from 0)
+Receiving objects: 100% (129/129), 44.04 KiB | 2.45 MiB/s, done.
+Resolving deltas: 100% (63/63), done.
+
+# 복제본 폴더로 이동 후 현재 브랜치 확인
+east1111@1234 ~ % cd e1-2-python-basics-quiz-game-copy
+east1111@1234 e1-2-python-basics-quiz-game-copy % git branch
+* main
+
+# 복제본에서 README 수정 내용을 커밋하고 원격 저장소에 push
+east1111@1234 e1-2-python-basics-quiz-game-copy % git add README.md
+east1111@1234 e1-2-python-basics-quiz-game-copy % git commit -m "Docs: clone pull 실습용 README 문구 추가"
+east1111@1234 e1-2-python-basics-quiz-game-copy % git push origin main
+
+[main *****] Docs: clone pull 실습용 README 문구 추가
+ 1 file changed, 2 insertions(+)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 6 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 369 bytes | 369.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/mov-hyun/e1-2-python-basics-quiz-game.git
+   *****..*****  main -> main
+
+# 원래 작업 폴더에서 최신 변경 사항 pull
+east1111@1234 e1-2-python-basics-quiz-game % git pull origin main
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 3 (delta 2), reused 3 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (3/3), 349 bytes | 116.00 KiB/s, done.
+From https://github.com/mov-hyun/e1-2-python-basics-quiz-game
+ * branch            main       -> FETCH_HEAD
+   *****..*****  main       -> origin/main
+Updating *****..*****
+Fast-forward
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
+```
 ## 3. Python 기본 정리
 
 이 프로젝트를 만들면서 사용한 Python 기본 개념은 아래와 같습니다.
